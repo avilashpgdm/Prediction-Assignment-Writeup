@@ -1,0 +1,24 @@
+# Create inputTrain and inputTesting 
+library(caret)
+set.seed(4848)
+inputTrain <- createDataPartition(y = inputTrain$classe, p = 0.75, list = FALSE)
+inputTraining <- pml.training[inputTrain, ]
+inputTesting <- pml.training[-inputTrain, ]
+
+# Train with randomForest
+library(randomForest)
+set.seed(555)
+rfGrid <-  expand.grid(interaction.depth = c(1, 5, 9),
+                        n.trees = (1:30)*50,
+                        shrinkage = 0.1)
+modelFit <- randomForest(classe ~., data = inputTrain, tuneGrid = rfGrid) 
+print(modelFit)
+plot(modelFit)
+
+# Test "out of sample"
+predictions <- predict(modelFit, newdata = inTesting)
+confusionMatrix(predictions, inputTesting$classe)
+
+# Test validation sample
+answers <- predict(modelFit, newdata = myTesting, type = "response")
+print(answers)
